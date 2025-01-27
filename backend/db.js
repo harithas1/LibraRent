@@ -12,15 +12,27 @@ app.use(cors());
 require("dotenv").config();
 app.use(express.json());
 
-JWT_SECRET = process.env.JWT_SECRET;
-JWT_EXPIRES = process.env.JWT_EXPIRES;
+
+
+// JWT_SECRET = 120kjnjhu748932983y27h
+// JWT_EXPIRES = 1h
+
+
+// DB_USER = jtd
+// DB_HOST = localhost
+// DB_DATABASE = postgres
+// DB_PASSWORD = jtd@123
+// DB_PORT = 5432
+
+JWT_SECRET = "120kjnjhu748932983y27h";
+JWT_EXPIRES = "1h";
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
+  user: "jtd",
+  host: "localhost",
+  database: "postgres",
+  password: "jtd@123",
+  port: 5432,
 });
 
 pool
@@ -208,7 +220,7 @@ app.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
     console.log({
