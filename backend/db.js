@@ -4,18 +4,16 @@ const app = express();
 const PORT = 5000;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const cors = require('cors');
+const cors = require("cors");
 const Joi = require("joi");
-
 
 app.use(
   cors({
-    origin: "https://haris-libra-rent.netlify.app",
+    origin: "http://localhost:5000",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
-
 
 require("dotenv").config();
 app.use(express.json());
@@ -290,9 +288,9 @@ app.get("/user/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   // Validate the id (ensure it's a valid number)
-    if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
-      return res.status(400).json({ error: "Invalid user ID format" });
-    }
+  if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
+    return res.status(400).json({ error: "Invalid user ID format" });
+  }
 
   try {
     const result = await pool.query(`SELECT * FROM customers WHERE id = $1`, [
@@ -390,7 +388,6 @@ app.post("/user/rentbook", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 app.post("/user/returnbook", authenticateToken, async (req, res) => {
   const { rentalId } = req.body;
@@ -506,7 +503,6 @@ app.get("/user/:id/rentals", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 //
 

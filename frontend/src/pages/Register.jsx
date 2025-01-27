@@ -14,10 +14,7 @@ export default function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "https://haris-libra-rent.netlify.app/register",
-        form
-      );
+      const response = await axios.post("http://localhost:5000/register", form);
       console.log("Registration successful:", response.data);
       setError("");
     } catch (error) {

@@ -26,12 +26,9 @@ export default function AdminPanel({ token, role, id }) {
   // Fetch admin data
   const fetchAdmin = async () => {
     try {
-      const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/${role}/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`http://localhost:5000/${role}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setAdmin(response.data);
     } catch (err) {
       console.error(err);
@@ -42,7 +39,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchUsersData = async () => {
     try {
       const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/users`,
+        `http://localhost:5000/${role}/${id}/users`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(response.data);
@@ -54,7 +51,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchBooks = async () => {
     try {
       const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/books`,
+        `http://localhost:5000/${role}/${id}/books`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBooks(response.data);
@@ -66,7 +63,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchRentals = async () => {
     try {
       const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/rentals/details`,
+        `http://localhost:5000/${role}/${id}/rentals/details`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setRentals(response.data);
@@ -78,7 +75,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchReports = async () => {
     try {
       const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/reports`,
+        `http://localhost:5000/${role}/${id}/reports`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setReports(response.data);
@@ -91,7 +88,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUpdateBook = async () => {
     try {
       await axios.put(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/book/${editBook.id}`,
+        `http://localhost:5000/${role}/${id}/book/${editBook.id}`,
         editBook,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -107,12 +104,9 @@ export default function AdminPanel({ token, role, id }) {
   // Delete book
   const handleDeleteBook = async (bookId) => {
     try {
-      await axios.delete(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/book/${bookId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`http://localhost:5000/${role}/${id}/book/${bookId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       alert("Book deleted successfully!");
       fetchBooks();
     } catch (err) {
@@ -126,7 +120,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUserDetails = async () => {
     try {
       await axios.put(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/user/edit/${editUser.id}`,
+        `http://localhost:5000/${role}/${id}/user/edit/${editUser.id}`,
         editUser,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -142,7 +136,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUpdateRole = async () => {
     try {
       await axios.put(
-        `https://haris-libra-rent.netlify.app/${role}/${id}/user/${editUser.id}/role`,
+        `http://localhost:5000/${role}/${id}/user/${editUser.id}/role`,
         { role: editUser.role },
         { headers: { Authorization: `Bearer ${token}` } }
       );

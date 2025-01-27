@@ -13,14 +13,11 @@ const User = ({ token, role, id }) => {
   // Fetch user data when the component mounts
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/user/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`http://localhost:5000/user/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setUserData(response.data);
       console.log(response.data);
     } catch (err) {
@@ -34,7 +31,7 @@ const User = ({ token, role, id }) => {
   const fetchUserHistory = async () => {
     try {
       const response = await axios.get(
-        `https://haris-libra-rent.netlify.app/user/${id}/rentals`,
+        `http://localhost:5000/user/${id}/rentals`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -51,14 +48,11 @@ const User = ({ token, role, id }) => {
   // Fetch available books for rent
   const fetchAvailableBooks = async () => {
     try {
-      const response = await axios.get(
-        "https://haris-libra-rent.netlify.app/books",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get("http://localhost:5000/books", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setAvailableBooks(response.data);
     } catch (err) {
       setError(err.message);
@@ -69,7 +63,7 @@ const User = ({ token, role, id }) => {
     setIsRenting(true);
     try {
       await axios.post(
-        `https://haris-libra-rent.netlify.app/user/rentbook`,
+        `http://localhost:5000/user/rentbook`,
         { bookId },
         {
           headers: {
