@@ -6,8 +6,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require('cors');
 const Joi = require("joi");
-const helmet = require("helmet");
-app.use(helmet());
 
 
 app.use(
