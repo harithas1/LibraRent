@@ -7,9 +7,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const Joi = require("joi");
 
-app.use(
-  cors()
-);
+app.use(cors());
 
 require("dotenv").config();
 app.use(express.json());
@@ -238,7 +236,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
 // authenticateToken
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -272,8 +269,6 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-
-
 const authorizeAdmin = (req, res, next) => {
   if (req.user.role !== "admin") {
     return res
@@ -282,7 +277,6 @@ const authorizeAdmin = (req, res, next) => {
   }
   next();
 };
-
 
 app.get("/user/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
@@ -369,8 +363,6 @@ app.post("/user/rentbook", authenticateToken, async (req, res) => {
       [bookId]
     );
 
-
-
     const rentalResult = await pool.query(
       "INSERT INTO rentals (customer_id, book_id) VALUES ($1, $2) RETURNING *",
       [req.user.id, bookId]
@@ -408,7 +400,6 @@ app.post("/user/returnbook", authenticateToken, async (req, res) => {
       "UPDATE books SET available_copies = available_copies + 1, rented_copies = rented_copies - 1 WHERE id = $1",
       [rental.book_id]
     );
-
 
     await pool.query(
       "UPDATE rentals SET returned = TRUE, return_date = CURRENT_TIMESTAMP WHERE id = $1",
@@ -494,9 +485,6 @@ app.get("/user/:id/rentals", authenticateToken, async (req, res) => {
 
 //
 
-
-
-
 app.get("/admin/:id", authenticateToken, authorizeAdmin, async (req, res) => {
   const { id } = req.params;
 
@@ -520,23 +508,32 @@ app.get("/admin/:id", authenticateToken, authorizeAdmin, async (req, res) => {
 });
 
 // Get All Books (Admin)
-app.get("/admin/:id/books", authenticateToken, authorizeAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT id, title, author, genre, price, available_copies FROM books WHERE available_copies > 0"
-    );
-    
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+app.get(
+  "/admin/:id/books",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const result = await pool.query(
+        "SELECT id, title, author, genre, price, available_copies FROM books WHERE available_copies > 0"
+      );
+
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 // Get Rental Details (Admin)
-app.get("/admin/:id/rentals/details", authenticateToken, authorizeAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(`
+app.get(
+  "/admin/:id/rentals/details",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const result = await pool.query(`
       SELECT 
         rentals.id AS rental_id, 
         customers.id AS customer_id,
@@ -551,17 +548,22 @@ app.get("/admin/:id/rentals/details", authenticateToken, authorizeAdmin, async (
       JOIN books ON rentals.book_id = books.id
       ORDER BY rentals.rent_date
     `);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 // Get Overdue Rentals (Admin)
-app.get("/admin/:id/overdue-rentals", authenticateToken, authorizeAdmin, async (req, res) => {
-  try {
-    const result = await pool.query(`
+app.get(
+  "/admin/:id/overdue-rentals",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const result = await pool.query(`
       SELECT 
         rentals.id AS rental_id, 
         customers.name AS customer_name, 
@@ -573,18 +575,24 @@ app.get("/admin/:id/overdue-rentals", authenticateToken, authorizeAdmin, async (
       JOIN books ON rentals.book_id = books.id
       WHERE rentals.returned = FALSE AND rentals.return_date < CURRENT_TIMESTAMP
     `);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
+);
 
 // Get Book Rental History (Admin)
-app.get("/admin/:id/book/:bookId/rentals", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { bookId } = req.params;
-  try {
-    const result = await pool.query(`
+app.get(
+  "/admin/:id/book/:bookId/rentals",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { bookId } = req.params;
+    try {
+      const result = await pool.query(
+        `
       SELECT 
         rentals.id AS rental_id, 
         customers.name AS customer_name, 
@@ -595,98 +603,117 @@ app.get("/admin/:id/book/:bookId/rentals", authenticateToken, authorizeAdmin, as
       JOIN customers ON rentals.customer_id = customers.id
       WHERE rentals.book_id = $1
       ORDER BY rentals.rent_date DESC
-    `, [bookId]);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    `,
+        [bookId]
+      );
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
-
-
+);
 
 // Search Users (Admin)
-app.get("/admin/:id/users/search", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { searchTerm } = req.query; // can search by name or phone number
-  try {
-    const result = await pool.query(`
+app.get(
+  "/admin/:id/users/search",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { searchTerm } = req.query; // can search by name or phone number
+    try {
+      const result = await pool.query(
+        `
       SELECT * FROM customers WHERE name ILIKE $1 OR phone ILIKE $1
-    `, [`%${searchTerm}%`]);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    `,
+        [`%${searchTerm}%`]
+      );
+      res.status(200).json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
-
+);
 
 // Get User Details by ID (Admin)
-app.get("/admin/:id/user/:userId", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { userId } = req.params;
+app.get(
+  "/admin/:id/user/:userId",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { userId } = req.params;
 
-  try {
-    const result = await pool.query(
-      "SELECT id, name, phone, role, created_at FROM customers WHERE id = $1",
-      [userId]
-    );
+    try {
+      const result = await pool.query(
+        "SELECT id, name, phone, role, created_at FROM customers WHERE id = $1",
+        [userId]
+      );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "User not found" });
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.status(200).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    res.status(200).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
-
+);
 
 // Reset User details (Admin)
-app.put("/admin/:id/user/edit/:userId", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { userId } = req.params;
-  const { name, phone, role, newPassword } = req.body;
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  try {
-    const result = await pool.query(
-      "UPDATE customers SET name = $1, phone = $2, role = $3, password = $4 WHERE id = $5",
-      [name, phone, role, hashedPassword, userId]
-    );
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "User not found" });
+app.put(
+  "/admin/:id/user/edit/:userId",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { userId } = req.params;
+    const { name, phone, role, newPassword } = req.body;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    try {
+      const result = await pool.query(
+        "UPDATE customers SET name = $1, phone = $2, role = $3, password = $4 WHERE id = $5",
+        [name, phone, role, hashedPassword, userId]
+      );
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.status(200).json({ message: "User details updated successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
     }
-    res.status(200).json({ message: "User details updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
-
-
-
+);
 
 // Update Book Copies (Admin)
-app.put("/admin/:id/book/:bookId/copies", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { bookId } = req.params;
-  const { copies } = req.body; // New copy count
-  try {
-    const result = await pool.query(`
+app.put(
+  "/admin/:id/book/:bookId/copies",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { bookId } = req.params;
+    const { copies } = req.body; // New copy count
+    try {
+      const result = await pool.query(
+        `
       UPDATE books 
       SET copies = $1, available_copies = GREATEST($1 - rented_copies, 0)
       WHERE id = $2
-    `, [copies, bookId]);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Book not found" });
+    `,
+        [copies, bookId]
+      );
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+      res.status(200).json({ message: "Book copies updated successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
     }
-    res.status(200).json({ message: "Book copies updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
-
-
-
+);
 
 // Endpoint to get all users
 app.get(
@@ -757,75 +784,96 @@ app.put(
 );
 
 // Delete Book (Admin)
-app.delete("/admin/:id/book/:bookId", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { bookId } = req.params;
+app.delete(
+  "/admin/:id/book/:bookId",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { bookId } = req.params;
 
-  try {
-    const result = await pool.query("DELETE FROM books WHERE id = $1", [bookId]);
+    try {
+      const result = await pool.query("DELETE FROM books WHERE id = $1", [
+        bookId,
+      ]);
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Book not found" });
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "Book not found" });
+      }
+
+      res.status(200).json({ message: "Book deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    res.status(200).json({ message: "Book deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
-
+);
 
 // Update User Role (Admin)
-app.put("/admin/:id/user/:userId/role", authenticateToken, authorizeAdmin, async (req, res) => {
-  const { userId } = req.params;
-  const { role } = req.body;
+app.put(
+  "/admin/:id/user/:userId/role",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    const { userId } = req.params;
+    const { role } = req.body;
 
-  if (!["user", "admin"].includes(role)) {
-    return res.status(400).json({ error: "Invalid role" });
-  }
-
-  try {
-    const result = await pool.query(
-      "UPDATE customers SET role = $1 WHERE id = $2 RETURNING id, name, phone, role",
-      [role, userId]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "User not found" });
+    if (!["user", "admin"].includes(role)) {
+      return res.status(400).json({ error: "Invalid role" });
     }
 
-    res.status(200).json({ message: "User role updated successfully", user: result.rows[0] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    try {
+      const result = await pool.query(
+        "UPDATE customers SET role = $1 WHERE id = $2 RETURNING id, name, phone, role",
+        [role, userId]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.status(200).json({
+        message: "User role updated successfully",
+        user: result.rows[0],
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
-
-
+);
 
 // Generate Reports (Admin)
-app.get("/admin/:id/reports", authenticateToken, authorizeAdmin, async (req, res) => {
-  try {
-    const totalUsers = await pool.query("SELECT COUNT(*) AS total_users FROM customers");
-    const totalBooks = await pool.query("SELECT COUNT(*) AS total_books FROM books");
-    const totalRentals = await pool.query("SELECT COUNT(*) AS total_rentals FROM rentals");
-    const overdueRentals = await pool.query(
-      "SELECT COUNT(*) AS overdue_rentals FROM rentals WHERE returned = FALSE AND return_date < CURRENT_TIMESTAMP"
-    );
+app.get(
+  "/admin/:id/reports",
+  authenticateToken,
+  authorizeAdmin,
+  async (req, res) => {
+    try {
+      const totalUsers = await pool.query(
+        "SELECT COUNT(*) AS total_users FROM customers"
+      );
+      const totalBooks = await pool.query(
+        "SELECT COUNT(*) AS total_books FROM books"
+      );
+      const totalRentals = await pool.query(
+        "SELECT COUNT(*) AS total_rentals FROM rentals"
+      );
+      const overdueRentals = await pool.query(
+        "SELECT COUNT(*) AS overdue_rentals FROM rentals WHERE returned = FALSE AND return_date < CURRENT_TIMESTAMP"
+      );
 
-    res.status(200).json({
-      totalUsers: totalUsers.rows[0].total_users,
-      totalBooks: totalBooks.rows[0].total_books,
-      totalRentals: totalRentals.rows[0].total_rentals,
-      overdueRentals: overdueRentals.rows[0].overdue_rentals,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+      res.status(200).json({
+        totalUsers: totalUsers.rows[0].total_users,
+        totalBooks: totalBooks.rows[0].total_books,
+        totalRentals: totalRentals.rows[0].total_rentals,
+        overdueRentals: overdueRentals.rows[0].overdue_rentals,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
-});
-
-
+);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
