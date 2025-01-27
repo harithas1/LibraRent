@@ -20,7 +20,10 @@ export default function Login({ setRole, setToken, setId }) {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/login", form);
+      const response = await axios.post(
+        "https://haris-libra-rent.netlify.app/login",
+        form
+      );
       setError("");
       setToken(response.data.token);
       setRole(response.data.user.role);

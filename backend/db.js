@@ -4,10 +4,20 @@ const app = express();
 const PORT = 5000;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
+const cors = require('cors');
 const Joi = require("joi");
+const helmet = require("helmet");
+app.use(helmet());
 
-app.use(cors());
+
+app.use(
+  cors({
+    origin: "https://haris-libra-rent.netlify.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+
 
 require("dotenv").config();
 app.use(express.json());
@@ -282,9 +292,9 @@ app.get("/user/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   // Validate the id (ensure it's a valid number)
-  if (isNaN(id)) {
-    return res.status(400).json({ error: "Invalid user ID format" });
-  }
+    if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
+      return res.status(400).json({ error: "Invalid user ID format" });
+    }
 
   try {
     const result = await pool.query(`SELECT * FROM customers WHERE id = $1`, [
@@ -343,9 +353,11 @@ app.post("/user/rentbook", authenticateToken, async (req, res) => {
   const { bookId } = req.body;
 
   try {
-    const bookResult = await pool.query("SELECT * FROM books WHERE id = $1", [
-      bookId,
-    ]);
+    // Check if book exists and lock the row for update
+    const bookResult = await pool.query(
+      "SELECT * FROM books WHERE id = $1 FOR UPDATE",
+      [bookId]
+    );
 
     if (bookResult.rows.length === 0) {
       return res.status(404).json({ error: "Book not found" });
@@ -356,18 +368,22 @@ app.post("/user/rentbook", authenticateToken, async (req, res) => {
       return res.status(400).json({ error: "No copies available for rent" });
     }
 
+    // Begin the transaction
     await pool.query("BEGIN");
 
+    // Update book availability and rented copies
     await pool.query(
       "UPDATE books SET available_copies = available_copies - 1, rented_copies = rented_copies + 1 WHERE id = $1",
       [bookId]
     );
 
+    // Insert rental record
     const rentalResult = await pool.query(
       "INSERT INTO rentals (customer_id, book_id) VALUES ($1, $2) RETURNING *",
       [req.user.id, bookId]
     );
 
+    // Commit the transaction
     await pool.query("COMMIT");
     res.status(201).json(rentalResult.rows[0]);
   } catch (err) {
@@ -376,6 +392,7 @@ app.post("/user/rentbook", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 app.post("/user/returnbook", authenticateToken, async (req, res) => {
   const { rentalId } = req.body;
@@ -457,23 +474,32 @@ app.get(
 );
 
 app.get("/user/:id/rentals", authenticateToken, async (req, res) => {
-  try {
-    console.log("to check", req.user);
+  // Validate customer ID from the authenticated token
+  if (req.user.id !== parseInt(req.params.id)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
+  const { id } = req.params;
+  const page = parseInt(req.query.page) || 1; // Default to page 1
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 rentals per page
+  const offset = (page - 1) * limit;
+
+  try {
     const result = await pool.query(
       `
-      SELECT 
-        rentals.id AS rental_id, 
-        books.title AS book_title, 
-        rentals.rent_date, 
-        rentals.return_date, 
-        rentals.returned 
+      SELECT
+        rentals.id AS rental_id,
+        books.title AS book_title,
+        rentals.rent_date,
+        rentals.return_date,
+        rentals.returned
       FROM rentals
       JOIN books ON rentals.book_id = books.id
       WHERE rentals.customer_id = $1
       ORDER BY rentals.rent_date DESC
+      LIMIT $2 OFFSET $3
       `,
-      [req.user.id]
+      [id, limit, offset]
     );
 
     res.status(200).json(result.rows);
@@ -482,6 +508,7 @@ app.get("/user/:id/rentals", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 //
 

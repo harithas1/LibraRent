@@ -8,20 +8,25 @@ const User = ({ token, role, id }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
+  const [isRenting, setIsRenting] = useState(false);
 
   // Fetch user data when the component mounts
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/user/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `https://haris-libra-rent.netlify.app/user/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUserData(response.data);
       console.log(response.data);
-      
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,7 +34,7 @@ const User = ({ token, role, id }) => {
   const fetchUserHistory = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/user/${id}/rentals`,
+        `https://haris-libra-rent.netlify.app/user/${id}/rentals`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,11 +51,14 @@ const User = ({ token, role, id }) => {
   // Fetch available books for rent
   const fetchAvailableBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/books", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "https://haris-libra-rent.netlify.app/books",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setAvailableBooks(response.data);
     } catch (err) {
       setError(err.message);
@@ -58,9 +66,10 @@ const User = ({ token, role, id }) => {
   };
 
   const handleRentBook = async (bookId) => {
+    setIsRenting(true);
     try {
       await axios.post(
-        `http://localhost:5000/user/rentbook`,
+        `https://haris-libra-rent.netlify.app/user/rentbook`,
         { bookId },
         {
           headers: {
@@ -72,16 +81,27 @@ const User = ({ token, role, id }) => {
       fetchUserHistory();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsRenting(false);
     }
   };
 
   // useEffect to fetch data on mount
   useEffect(() => {
     if (token && id) {
-      setLoading(false);
-      fetchUserData();
-      fetchUserHistory();
-      fetchAvailableBooks();
+      setLoading(true);
+      const fetchData = async () => {
+        try {
+          await fetchUserData(); // First fetch the user data
+          await fetchUserHistory(); // Then fetch the rental history
+          await fetchAvailableBooks(); // Finally fetch available books
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
     }
   }, [token, id]);
 
@@ -95,31 +115,31 @@ const User = ({ token, role, id }) => {
     return <div>Error: {error}</div>;
   }
 
+  const getTabClassName = (tabName) => {
+    return activeTab === tabName
+      ? "border-b-2 border-blue-500 px-6 py-3 text-lg text-gray-700 focus:outline-none hover:text-blue-600"
+      : "px-6 py-3 text-lg text-gray-700 focus:outline-none hover:text-blue-600";
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       {/* Tab Navigation */}
       <div className="flex border-b-2 border-gray-300 mb-6">
         <button
           onClick={() => setActiveTab("details")}
-          className={`${
-            activeTab === "details" ? "border-b-2 border-blue-500" : ""
-          } px-6 py-3 text-lg text-gray-700 focus:outline-none hover:text-blue-600`}
+          className={getTabClassName("details")}
         >
           User Details
         </button>
         <button
           onClick={() => setActiveTab("history")}
-          className={`${
-            activeTab === "history" ? "border-b-2 border-blue-500" : ""
-          } px-6 py-3 text-lg text-gray-700 focus:outline-none hover:text-blue-600`}
+          className={getTabClassName("history")}
         >
           Rental History
         </button>
         <button
           onClick={() => setActiveTab("rent")}
-          className={`${
-            activeTab === "rent" ? "border-b-2 border-blue-500" : ""
-          } px-6 py-3 text-lg text-gray-700 focus:outline-none hover:text-blue-600`}
+          className={getTabClassName("rent")}
         >
           Rent Books
         </button>
@@ -129,7 +149,7 @@ const User = ({ token, role, id }) => {
       {activeTab === "details" && (
         <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
           <h1 className="text-2xl font-bold mb-4">User Details</h1>
-          {userData && (
+          {userData ? (
             <>
               <p className="mb-2">
                 <strong>Name:</strong> {userData.name}
@@ -143,9 +163,11 @@ const User = ({ token, role, id }) => {
               {/* format the date */}
               <p className="mb-2">
                 <strong> Member Since: </strong>
-                 {new Date(userData.created_at).toLocaleDateString()}
+                {new Date(userData.created_at).toLocaleDateString()}
               </p>
             </>
+          ) : (
+            <p>Loading user data...</p>
           )}
         </div>
       )}
@@ -164,7 +186,12 @@ const User = ({ token, role, id }) => {
                     Book Title: {rental.book_title}
                   </p>
                   <p>Rent Date: {rental.rent_date}</p>
-                  <p>Return Date: {rental.return_date || "Not returned"}</p>
+                  <p>
+                    Return Date:{" "}
+                    {rental.return_date
+                      ? new Date(rental.return_date).toLocaleDateString()
+                      : "Not returned"}
+                  </p>
                   <p>Returned: {`${rental.returned}`}</p>
                 </li>
               ))}
@@ -198,8 +225,9 @@ const User = ({ token, role, id }) => {
                   <button
                     className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
                     onClick={() => handleRentBook(book.id)}
+                    disabled={isRenting} // Disable while renting
                   >
-                    Rent
+                    {isRenting ? "Renting..." : "Rent"}
                   </button>
                 </li>
               ))}

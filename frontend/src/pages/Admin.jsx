@@ -26,9 +26,12 @@ export default function AdminPanel({ token, role, id }) {
   // Fetch admin data
   const fetchAdmin = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/${role}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `https://haris-libra-rent.netlify.app/${role}/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setAdmin(response.data);
     } catch (err) {
       console.error(err);
@@ -39,7 +42,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchUsersData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/${role}/${id}/users`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/users`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(response.data);
@@ -51,7 +54,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchBooks = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/${role}/${id}/books`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/books`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBooks(response.data);
@@ -63,7 +66,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchRentals = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/${role}/${id}/rentals/details`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/rentals/details`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setRentals(response.data);
@@ -75,7 +78,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchReports = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/${role}/${id}/reports`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/reports`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setReports(response.data);
@@ -88,7 +91,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUpdateBook = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/${role}/${id}/book/${editBook.id}`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/book/${editBook.id}`,
         editBook,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -104,9 +107,12 @@ export default function AdminPanel({ token, role, id }) {
   // Delete book
   const handleDeleteBook = async (bookId) => {
     try {
-      await axios.delete(`http://localhost:5000/${role}/${id}/book/${bookId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `https://haris-libra-rent.netlify.app/${role}/${id}/book/${bookId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       alert("Book deleted successfully!");
       fetchBooks();
     } catch (err) {
@@ -120,7 +126,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUserDetails = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/${role}/${id}/user/edit/${editUser.id}`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/user/edit/${editUser.id}`,
         editUser,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -136,7 +142,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUpdateRole = async () => {
     try {
       await axios.put(
-        `http://localhost:5000/${role}/${id}/user/${editUser.id}/role`,
+        `https://haris-libra-rent.netlify.app/${role}/${id}/user/${editUser.id}/role`,
         { role: editUser.role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -259,7 +265,10 @@ export default function AdminPanel({ token, role, id }) {
                   </p>
                 </section>
                 <section className="flex gap-2 justify-between">
-                  <Button variant="destructive" onClick={() => handleDeleteBook(book.id)}>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDeleteBook(book.id)}
+                  >
                     Delete
                   </Button>
                   <Button variant="outline" onClick={() => setEditBook(book)}>
