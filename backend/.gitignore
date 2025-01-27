@@ -1,0 +1,34 @@
+node_modules
+# .gitignore for Backend (Node.js + Express)
+
+# Dependency directories
+/node_modules
+
+# Logs
+npm-debug.log
+yarn-debug.log
+pnp-debug.log
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Temporary files
+*.log
+*.pid
+*.swp
+*.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Build output
+/dist
+
+# IDE and editor files
+.idea/
+/.vscode/
