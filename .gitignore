@@ -32,5 +32,4 @@ Thumbs.db
 .vscode
 
 # Tailwind and PostCSS config files (if not necessary in git)
-frontend/tailwind.config.js
-frontend/postcss.config.js
+

@@ -31,9 +31,7 @@ node_modules/
 *.sln
 *.sw?
 
-# Tailwind CSS specific
-tailwind.config.js*
-postcss.config.js*
+
 
 # Miscellaneous
 *.tgz
