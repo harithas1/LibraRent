@@ -8,10 +8,7 @@ const cors = require("cors");
 const Joi = require("joi");
 
 app.use(
-  cors({
-    origin: "http://localhost:5173", // Change this to your frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE"],
-  })
+  cors()
 );
 
 require("dotenv").config();
