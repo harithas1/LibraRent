@@ -1,7 +1,6 @@
 const { Pool } = require("pg");
 const express = require("express");
 const app = express();
-const PORT = 3000;
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");

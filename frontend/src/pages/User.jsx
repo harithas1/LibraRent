@@ -29,7 +29,7 @@ const User = ({ token, role, id }) => {
   const fetchUserHistory = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/user/${id}/rentals`,
+        `http://localhost:5000/user/${id}/rentals`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const User = ({ token, role, id }) => {
   // Fetch available books for rent
   const fetchAvailableBooks = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/books", {
+      const response = await axios.get("http://localhost:5000/books", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -60,7 +60,7 @@ const User = ({ token, role, id }) => {
   const handleRentBook = async (bookId) => {
     try {
       await axios.post(
-        `http://localhost:3000/user/rentbook`,
+        `http://localhost:5000/user/rentbook`,
         { bookId },
         {
           headers: {

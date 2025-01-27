@@ -39,7 +39,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchUsersData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/${role}/${id}/users`,
+        `http://localhost:5000/${role}/${id}/users`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(response.data);
@@ -51,7 +51,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchBooks = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/${role}/${id}/books`,
+        `http://localhost:5000/${role}/${id}/books`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBooks(response.data);
@@ -63,7 +63,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchRentals = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/${role}/${id}/rentals/details`,
+        `http://localhost:5000/${role}/${id}/rentals/details`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setRentals(response.data);
@@ -75,7 +75,7 @@ export default function AdminPanel({ token, role, id }) {
   const fetchReports = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/${role}/${id}/reports`,
+        `http://localhost:5000/${role}/${id}/reports`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setReports(response.data);
@@ -88,7 +88,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUpdateBook = async () => {
     try {
       await axios.put(
-        `http://localhost:3000/${role}/${id}/book/${editBook.id}`,
+        `http://localhost:5000/${role}/${id}/book/${editBook.id}`,
         editBook,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -104,7 +104,7 @@ export default function AdminPanel({ token, role, id }) {
   // Delete book
   const handleDeleteBook = async (bookId) => {
     try {
-      await axios.delete(`http://localhost:3000/${role}/${id}/book/${bookId}`, {
+      await axios.delete(`http://localhost:5000/${role}/${id}/book/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Book deleted successfully!");
@@ -120,7 +120,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUserDetails = async () => {
     try {
       await axios.put(
-        `http://localhost:3000/${role}/${id}/user/edit/${editUser.id}`,
+        `http://localhost:5000/${role}/${id}/user/edit/${editUser.id}`,
         editUser,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -136,7 +136,7 @@ export default function AdminPanel({ token, role, id }) {
   const handleUpdateRole = async () => {
     try {
       await axios.put(
-        `http://localhost:3000/${role}/${id}/user/${editUser.id}/role`,
+        `http://localhost:5000/${role}/${id}/user/${editUser.id}/role`,
         { role: editUser.role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
