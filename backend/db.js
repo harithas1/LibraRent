@@ -7,13 +7,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const Joi = require("joi");
 
-app.use(
-  cors({
-    origin: "http://localhost:5000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+app.use(cors());
 
 require("dotenv").config();
 app.use(express.json());
