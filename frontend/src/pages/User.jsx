@@ -12,7 +12,7 @@ const User = ({ token, role, id }) => {
   // Fetch user data when the component mounts
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/user/${id}`, {
+      const response = await axios.get(`http://localhost:5000/user/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

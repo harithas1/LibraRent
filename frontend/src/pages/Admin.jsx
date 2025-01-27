@@ -26,7 +26,7 @@ export default function AdminPanel({ token, role, id }) {
   // Fetch admin data
   const fetchAdmin = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/${role}/${id}`, {
+      const response = await axios.get(`http://localhost:5000/${role}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAdmin(response.data);
